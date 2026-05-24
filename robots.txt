@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://appadaycreator.com/house-cleaning-cost-advisor/sitemap.xml
