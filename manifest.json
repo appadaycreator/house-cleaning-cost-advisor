@@ -3,7 +3,7 @@
   "short_name": "house-cleani",
   "start_url": "/house-cleaning-cost-advisor/",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "background_color": "#6366f1",
   "theme_color": "#6366f1",
   "scope": "/house-cleaning-cost-advisor/"
 }
