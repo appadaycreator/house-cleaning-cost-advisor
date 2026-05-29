@@ -69,6 +69,20 @@ j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
             .result-value { font-size: 28px; }
         }
         /* ── サービス固有CSS ── */
+        .quiz-opt { width:100%; padding:12px 14px; margin-bottom:8px; border:2px solid #e5e7eb; border-radius:10px; font-size:14px; cursor:pointer; background:#fff; text-align:left; transition:border-color .15s, background .15s; }
+        .quiz-opt:hover { border-color:#7c3aed; background:#f5f3ff; }
+        .quiz-opt:active { transform:scale(0.99); background:#ede9fe; }
+        .quiz-opt:focus-visible { outline:3px solid #7c3aed; outline-offset:2px; }
+        .quiz-opt.selected { border-color:#7c3aed; background:#ede9fe; color:#7c3aed; font-weight:600; }
+        .quiz-opt.selected::before { content:'✓ '; }
+        .quiz-opt:disabled { cursor:not-allowed; opacity:0.6; }
+        .quiz-opt.selected:disabled { opacity:1; }
+        .cost-badge { background:linear-gradient(135deg,#7c3aed,#a855f7); color:white; border-radius:14px; padding:16px; text-align:center; margin-bottom:14px; }
+        .cost-badge .cost-amount { font-size:32px; font-weight:800; display:block; letter-spacing:-0.5px; }
+        .cost-badge .cost-label { font-size:12px; opacity:0.9; margin-top:4px; display:block; }
+        .result-share { display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
+        .result-share a { flex:1; min-width:120px; padding:10px 8px; border-radius:8px; font-size:13px; font-weight:600; text-decoration:none; text-align:center; display:inline-flex; align-items:center; justify-content:center; min-height:44px; }
+        .q-progress-label { font-size:14px; font-weight:600; color:#7c3aed; margin-bottom:6px; }
 
     
 @media print{
@@ -97,7 +111,7 @@ select,input[type=text],input[type=number],input[type=email],textarea{min-height
     <header class="site-header" role="banner">
         <div class="emoji" aria-hidden="true">🧹</div>
         <h1>ハウスクリーニング費用診断</h1>
-        <p>部屋数・汚れ具合・プロ依頼か自分でやるかを選んで掃除の費用相場と業者選びのコ...</p>
+        <p>部屋数・汚れ具合・予算から費用相場と最適な業者選びのコツを診断。約1分・登録不要・完全無料。</p>
     </header>
 
     <main id="main-content" class="container" role="main" aria-label="ハウスクリーニング費用診断のメインコンテンツ">
@@ -106,25 +120,44 @@ select,input[type=text],input[type=number],input[type=email],textarea{min-height
 
         <div class="card" id="quiz-start">
           <h2 style="font-size:18px;font-weight:700;margin-bottom:12px;">🧹 ハウスクリーニング費用診断</h2>
-          <p style="color:#666;font-size:14px;margin-bottom:8px;">部屋数・汚れ具合・プロ依頼か自分でやるかを選んで掃除の費用相場と業者選びのコ...</p>
+          <p style="color:#666;font-size:14px;margin-bottom:8px;">部屋数・汚れ具合・予算を選ぶだけで、最適な掃除プランと費用相場を診断します。</p>
           <ul style="font-size:13px;color:#94a3b8;margin:0 0 16px 16px;"><li>質問数：5問</li><li>所要時間：約1分</li></ul>
           <button class="btn" onclick="startQuiz()">診断スタート →</button>
         </div>
         <div id="quiz-area" style="display:none;">
-          <div style="font-size:12px;color:#999;margin-bottom:8px;">
-            質問 <span id="q-num">1</span> / <span id="q-total">5</span>
+          <div class="q-progress-label">
+            <span id="q-num">1</span>問目 / 全<span id="q-total">5</span>問
           </div>
-          <div id="q-progress" style="height:4px;background:#e5e7eb;border-radius:2px;margin-bottom:16px;">
-            <div id="q-bar" style="height:100%;background:#7c3aed;border-radius:2px;transition:width .3s;width:20%;"></div>
+          <div id="q-progress" style="height:8px;background:#e5e7eb;border-radius:4px;margin-bottom:16px;">
+            <div id="q-bar" style="height:100%;background:#7c3aed;border-radius:4px;transition:width .3s;width:20%;"></div>
           </div>
           <p id="q-text" style="font-size:16px;font-weight:600;margin-bottom:16px;"></p>
           <div id="q-options" class="space-y-2"></div>
         </div>
         <div class="result" id="result">
           <div class="card">
+            <div class="cost-badge">
+              <span class="cost-amount" id="r-cost"></span>
+              <span class="cost-label" id="r-cost-label"></span>
+            </div>
             <h3 id="r-title" style="font-size:18px;font-weight:700;margin-bottom:8px;color:#7c3aed;"></h3>
             <p id="r-desc" style="color:#444;font-size:14px;line-height:1.7;"></p>
-            <button class="btn" style="margin-top:16px;" onclick="location.reload()">もう一度診断</button>
+            <!-- アフィリエイトCTA（プロ依頼プランのみ表示） -->
+            <div id="r-affiliate" style="display:none;background:linear-gradient(135deg,#fef3c7,#fffbeb);border:2px solid #f59e0b;border-radius:12px;padding:14px;margin-top:14px;text-align:center;">
+              <p style="font-size:13px;font-weight:800;color:#92400e;margin-bottom:8px;">🏠 プロに依頼するなら実績No.1！</p>
+              <a href="https://px.a8.net/svt/ejp?a8mat=4B3YV7+C7G7SA+4X26+ZQ80I" rel="nofollow noopener noreferrer" target="_blank"
+                 style="display:inline-block;background:#f59e0b;color:#fff;padding:10px 20px;border-radius:10px;font-weight:800;text-decoration:none;font-size:13px;">
+                  🧹 アールクリーニング【激トク6時間パック】→
+              </a>
+              <img border="0" width="1" height="1" src="https://www13.a8.net/0.gif?a8mat=4B3YV7+C7G7SA+4X26+ZQ80I" alt="">
+              <p style="font-size:11px;color:#92400e;margin-top:5px;">作業実績50万件突破！まずは無料見積もりから</p>
+            </div>
+            <!-- 診断結果のシェアボタン -->
+            <div class="result-share">
+              <a id="r-share-x" href="#" target="_blank" rel="noopener" style="background:#1DA1F2;color:white;">𝕏 結果をシェア</a>
+              <a id="r-share-line" href="#" target="_blank" rel="noopener" style="background:#00B900;color:white;">LINE でシェア</a>
+            </div>
+            <button class="btn" style="margin-top:12px;background:#f3f4f6;color:#374151;" onclick="resetQuiz()">もう一度診断する</button>
           </div>
         </div>
 
@@ -205,7 +238,7 @@ select,input[type=text],input[type=number],input[type=email],textarea{min-height
         </div>
     </main>
 
-    <footer style="text-align:center;padding:20px;color:white;font-size:12px;opacity:0.75;margin-top:8px;">
+    <footer style="text-align:center;padding:20px;color:white;font-size:12px;background:#374151;margin-top:8px;">
         <p><a href="https://appadaycreator.github.io/" style="color:white;">AppADayCreator</a>
         | <a href="privacy-policy.html" style="color:white;">プライバシーポリシー</a>
         | <a href="terms.html" style="color:white;">利用規約</a>
@@ -223,10 +256,34 @@ select,input[type=text],input[type=number],input[type=email],textarea{min-height
       { text: '掃除でいちばん困っていることは？', opts: ['時間がない', 'やり方がわからない', '道具・洗剤選びが難しい', 'やる気が出ない'] }
     ];
     const RESULTS = [
-      { title: '🧹 DIY節約プラン — 自分でできる掃除術', desc: '費用を抑えつつ効果的に掃除するDIYプランがおすすめです。重曹・クエン酸・セスキ炭酸ソーダの3種類を揃えれば水回り・キッチン・浴室のほとんどに対応できます。エアコン内部フィルター掃除は市販のスプレーで年2回行いましょう。掃除道具への初期投資は3,000〜5,000円程度で十分です。' },
-      { title: '🏠 スポット依頼プラン — 気になる箇所だけプロへ', desc: 'エアコン1台（8,000〜15,000円）・浴室（15,000〜25,000円）など気になる場所だけプロに依頼するのがコスパ◎。楽天市場やじゃらんのクリーニング予約サービスを使うとクーポン割引も。自分でできる床・日常掃除は自力で分担することで費用を半減できます。' },
-      { title: '🌟 定期クリーニングプラン — プロに定期依頼', desc: '年1〜2回のプロクリーニングで住まいの価値を維持するプランです。2LDKの場合、相場は3〜5万円程度。「ダスキン」「おそうじ本舗」など大手チェーンは品質が安定していておすすめ。初回はキャンペーン価格を狙いましょう。汚れが蓄積する前に依頼することで費用も抑えられます。' },
-      { title: '✨ 徹底クリーニングプラン — 丸ごとお任せ', desc: '引越し前後や大掃除として、部屋全体をプロに丸ごと任せるプランです。3LDKの場合、相場は6〜12万円程度。「ベアーズ」「カジタク」など家事代行大手やリフォーム会社のハウスクリーニングサービスが選択肢。一度徹底的にきれいにすることで、その後の日常メンテナンスが格段に楽になります。' }
+      {
+        title: '🧹 DIY節約プラン — 自分でできる掃除術',
+        cost: '¥3,000〜¥5,000',
+        costLabel: '初期投資（道具・洗剤）の目安',
+        type: 'diy',
+        desc: '費用を抑えつつ効果的に掃除するDIYプランがおすすめです。重曹・クエン酸・セスキ炭酸ソーダの3種類を揃えれば水回り・キッチン・浴室のほとんどに対応できます。エアコン内部フィルター掃除は市販のスプレーで年2回行いましょう。掃除道具への初期投資は3,000〜5,000円程度で十分です。'
+      },
+      {
+        title: '🏠 スポット依頼プラン — 気になる箇所だけプロへ',
+        cost: '¥8,000〜¥25,000',
+        costLabel: '箇所ごとの費用目安（エアコン〜浴室）',
+        type: 'spot',
+        desc: 'エアコン1台（8,000〜15,000円）・浴室（15,000〜25,000円）など気になる場所だけプロに依頼するのがコスパ◎。楽天市場やじゃらんのクリーニング予約サービスを使うとクーポン割引も。自分でできる床・日常掃除は自力で分担することで費用を半減できます。'
+      },
+      {
+        title: '🌟 定期クリーニングプラン — プロに定期依頼',
+        cost: '¥30,000〜¥50,000',
+        costLabel: '2LDK・年1〜2回の費用目安',
+        type: 'regular',
+        desc: '年1〜2回のプロクリーニングで住まいの価値を維持するプランです。2LDKの場合、相場は3〜5万円程度。「ダスキン」「おそうじ本舗」など大手チェーンは品質が安定していておすすめ。初回はキャンペーン価格を狙いましょう。汚れが蓄積する前に依頼することで費用も抑えられます。'
+      },
+      {
+        title: '✨ 徹底クリーニングプラン — 丸ごとお任せ',
+        cost: '¥60,000〜¥120,000',
+        costLabel: '3LDK一棟まるごとの費用目安',
+        type: 'full',
+        desc: '引越し前後や大掃除として、部屋全体をプロに丸ごと任せるプランです。3LDKの場合、相場は6〜12万円程度。「ベアーズ」「カジタク」など家事代行大手やリフォーム会社のハウスクリーニングサービスが選択肢。一度徹底的にきれいにすることで、その後の日常メンテナンスが格段に楽になります。'
+      }
     ];
     function getResult(answers) {
       const scores = [0,0,0,0];
@@ -246,7 +303,7 @@ select,input[type=text],input[type=number],input[type=email],textarea{min-height
       const best = scores.indexOf(Math.max(...scores));
       return RESULTS[best];
     }
-    const BTN='#7c3aed'; let cur=0; const ans=[];
+    let cur=0; const ans=[];
     document.addEventListener('DOMContentLoaded',()=>{ document.getElementById('q-total').textContent=QUESTIONS.length; });
     function startQuiz(){ cur=0;ans.length=0; document.getElementById('quiz-start').style.display='none'; document.getElementById('quiz-area').style.display='block'; document.getElementById('result').classList.remove('show'); renderQ(); }
     function renderQ(){
@@ -254,15 +311,38 @@ select,input[type=text],input[type=number],input[type=email],textarea{min-height
       document.getElementById('q-num').textContent=cur+1;
       document.getElementById('q-bar').style.width=((cur+1)/QUESTIONS.length*100)+'%';
       document.getElementById('q-text').textContent=q.text;
-      document.getElementById('q-options').innerHTML=q.opts.map((o,i)=>`<button onclick="answer(${i})" style="width:100%;padding:12px;margin-bottom:8px;border:2px solid #e5e7eb;border-radius:10px;font-size:14px;cursor:pointer;background:#fff;text-align:left;">${o}</button>`).join('');
+      document.getElementById('q-options').innerHTML=q.opts.map((o,i)=>`<button class="quiz-opt" onclick="answer(this,${i})">${o}</button>`).join('');
     }
-    function answer(idx){ ans.push({idx}); cur++; if(cur>=QUESTIONS.length) showResult(); else renderQ(); }
+    function answer(btn, idx){
+      // 全ボタン無効化・選択済みを視覚的にハイライト
+      document.querySelectorAll('.quiz-opt').forEach(b=>b.disabled=true);
+      btn.classList.add('selected');
+      ans.push({idx});
+      cur++;
+      // 200ms後に次の質問へ
+      setTimeout(function(){ if(cur>=QUESTIONS.length) showResult(); else renderQ(); }, 220);
+    }
     function showResult(){
       document.getElementById('quiz-area').style.display='none';
       const r=getResult(ans);
+      document.getElementById('r-cost').textContent=r.cost;
+      document.getElementById('r-cost-label').textContent=r.costLabel;
       document.getElementById('r-title').textContent=r.title;
       document.getElementById('r-desc').textContent=r.desc;
+      // アフィリエイトCTAはDIY以外で表示
+      document.getElementById('r-affiliate').style.display=(r.type!=='diy')?'block':'none';
+      // SNSシェアURLを診断結果と連動
+      const txt=encodeURIComponent('ハウスクリーニング診断結果：'+r.title+'（'+r.cost+'）#ハウスクリーニング #無料診断');
+      const url=encodeURIComponent('https://appadaycreator.com/house-cleaning-cost-advisor/');
+      document.getElementById('r-share-x').href='https://twitter.com/intent/tweet?text='+txt+'&url='+url;
+      document.getElementById('r-share-line').href='https://line.me/R/msg/text/?'+txt+'%0A'+url;
       document.getElementById('result').classList.add('show');
+    }
+    function resetQuiz(){
+      cur=0; ans.length=0;
+      document.getElementById('result').classList.remove('show');
+      document.getElementById('quiz-area').style.display='none';
+      document.getElementById('quiz-start').style.display='block';
     }
     </script>
 <script id="ux-behavior">
